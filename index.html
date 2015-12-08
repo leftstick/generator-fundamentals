@@ -90,11 +90,12 @@
 				</section>
 
 				<section>
-					<h2>How it look?</h2>
-					<p>
-						The function keyword followed by an asterisk defines a generator function, which returns a Generator object:
-					</p>
-					<pre><code class="javascript" data-trim>
+					<section>
+						<h2>How it look?</h2>
+						<p>
+							The function keyword followed by an asterisk defines a generator function, which returns a <a href="#" class="navigate-down">Generator object</a>:
+						</p>
+						<pre><code class="javascript" data-trim>
 'use strict'
 
 var idMaker = function* (){
@@ -103,7 +104,33 @@ var idMaker = function* (){
         yield index++;
     }
 };
-					</code></pre>
+						</code></pre>
+					</section>
+                    <section>
+                    	<h2>APIs of Generator Object</h2>
+						<table>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>next()</td>
+								<td>Returns a value yielded by the <code>yield</code> expression.</td>
+							</tr>
+							<tr>
+								<td>return()</td>
+								<td>Returns the given value and finishes the generator.</td>
+							</tr>
+							<tr>
+								<td>throw()</td>
+								<td>Throws an error to a generator.</td>
+							</tr>
+						</tbody>
+					</table>
+                    </section>
 				</section>
 
 				<section>
@@ -123,10 +150,10 @@ var idMaker = function* (){
 
 var gen = idMaker();
 
-console.log(gen.next().value); // 0, done: false
-console.log(gen.next().value); // 1, done: false
-console.log(gen.next().value); // 2, done: false
-console.log(gen.next().value); // undefined, done: true
+console.log(gen.next()); // value: 0, done: false
+console.log(gen.next()); // value: 1, done: false
+console.log(gen.next()); // value: 2, done: false
+console.log(gen.next()); // value: undefined, done: true
 					</code></pre>
 				</section>
 

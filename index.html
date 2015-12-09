@@ -95,15 +95,11 @@
 						<p>
 							The function keyword followed by an asterisk defines a generator function, which returns a <a href="#" class="navigate-down">Generator object</a>:
 						</p>
+						<p style="text-align: left; margin-left: 52px;"><strong >Syntax</strong></p>
 						<pre><code class="javascript" data-trim>
-'use strict'
-
-var idMaker = function* (){
-    var index = 0;
-    while(index < 3){
-        yield index++;
-    }
-};
+function* name([param[, param[, ... param]]]) {
+   statements
+}
 						</code></pre>
 					</section>
                     <section>
@@ -136,7 +132,7 @@ var idMaker = function* (){
 				<section>
 					<h2>How to use a generator?</h2>
 					<p>
-						Let's try with previous snippet:
+						Let's try with simple snippet:
 					</p>
 					<pre><code class="javascript" data-trim>
 'use strict'

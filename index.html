@@ -174,7 +174,7 @@ gen.next();
 //step 4. re-enter the generator with capitalized "World" passed in
 //as the result of (yield 'world') expression
 var finalResult = gen.next('World');
-console.log(finalResult);//should be "Hello World"
+console.log(finalResult);//{ value: 'Hello World', done: true }
 						</code></pre>
 					</section>
 					<section>
@@ -368,11 +368,8 @@ sessionPromise
     //to make it printable inside generator
     it.next(user);
 })
-.catch(function(err) {
-    //trigger an error to be caught inside the generator
-    //while error occurs in this promise flow
-    it.throw(err);
-});
+.catch(it.throw.bind(it));//trigger an error to be caught inside the generator
+//while error occurs in this promise flow
 						</code></pre>
 					</section>
 				</section>

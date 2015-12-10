@@ -318,7 +318,7 @@ for (n of fibonacci()) {
 						<P>With <code>yield</code>'s pausing ability</P>, let's try controlling an async task with <code>generator</code> and <a href="https://github.com/tj/co" target="_blank">co</a>(<a href="#" class="navigate-down">see below</a>)
 					</section>
 					<section>
-						<pre><code class="javascript" data-trim>
+						<pre><code class="javascript" data-trim style="max-height: 650px;">
 'use strict';
 
 var co = require('co');
@@ -336,8 +336,8 @@ var getUserById = function(userId) {
 
 var getCurrentUser = function*() {
     try {
-        var session = yield getSession();
-        var user = yield getUserById(session.userId);
+        var session = yield getSession();//step 2.
+        var user = yield getUserById(session.userId);//step 4.
         console.log('user is ', user);
     } catch (e) {
         console.error('ERROR:', e);
@@ -350,29 +350,26 @@ co(getCurrentUser);//execute the generator automatically
 					</section>
 					<section>
 						<h2>How does co work?</h2>
-						<pre><code class="javascript" data-trim>
+						<pre><code class="javascript" data-trim style="max-height: 570px;">
 'use strict';
 
 var it = getCurrentUser();
-
-//start controlling the execution flow
-
-var sessionPromise = it.next().value;//the first yield push a promise out here
+//step 1.the first yield push a promise out here
+var sessionPromise = it.next().value;
 sessionPromise
 .then(function(session) {
-    //once we get the result, we pass it back, and the second yield receive the
-    //correct session info instead of a promise
-    //and since the second yield push a promise as well, we just return it here
-    //to the next promise flow
+    //once we get the result, pass it back as final result of session in generator
+    //step 3.and since the second yield push a promise as well, we just return
+    //it here to the next promise flow
     return it.next(session).value;
 })
 .then(function(user) {
     //finall we get user info, and pass it back to the generator
-    //to make it printable inside getCurrentUser generator function
+    //to make it printable inside generator
     it.next(user);
 })
 .catch(function(err) {
-    //trigger an error to be caught inside this generator
+    //trigger an error to be caught inside the generator
     //while error occurs in this promise flow
     it.throw(err);
 });

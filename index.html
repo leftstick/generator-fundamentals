@@ -56,27 +56,10 @@
 			<div class="slides">
 				<section>
 					<h1>generator</h1>
-					<h3>No promise, no callback</h3>
+					<h3>Iterator, No promise, no callback</h3>
 					<p>
 						<small>Created by <a href="http://leftstick.gitcafe.io">Howard.Zuo</a> / <a href="mailto:leftstick@qq.com">@leftstick</a></small>
 					</p>
-				</section>
-
-				<section>
-					<section>
-						<h2>Talk about async</h2>
-						<p>We've known few ways of handling async task:</p>
-						<ul>
-							<li>callback</li>
-							<li>event listening</li>
-							<li>publish/subscribe</li>
-							<li>promise</li>
-						</ul>
-					</section>
-					<section>
-						<h2>What's new in ES2015</h2>
-						<h1>generator</h1>
-					</section>
 				</section>
 
 				<section>
@@ -191,11 +174,9 @@ occupy();
 							<li>be interpolated while running</li>
 						</ul>
 					</section>
-				</section>
-
-				<section>
-					<h2>Decomposition of generator</h2>
-					<pre><code class="javascript" data-trim>
+					<section>
+						<h2>Decomposition of generator</h2>
+						<pre><code class="javascript" data-trim>
 'use strict'
 
 var hello = function* () {
@@ -216,9 +197,9 @@ console.log(gen.next().value);
 //as the result of (yield 'world') expression, and print the
 //final result
 console.log(gen.next('World').value);
-					</code></pre>
+						</code></pre>
+					</section>
 				</section>
-
 
 				<section>
 					<section>
@@ -243,83 +224,31 @@ var fibonacci = function*() {
     }
 };
 
-var it = fibonacci();
-console.log(it.next().value);//1
-console.log(it.next().value);//1
-console.log(it.next().value);//2
-console.log(it.next().value);//3
-console.log(it.next().value);//5
-console.log(it.next().value);//8
+for (var n of fibonacci()) {
+    console.log(n);
+    // truncate the sequence at 1000
+    if (n >= 1000) {
+        break;
+    }
+}
 						</code></pre>
                     </section>
 					<section id="control-flow">
                     	<h2>Control Flow</h2>
-						<p>Generator is sort of <a href="https://en.wikipedia.org/wiki/Coroutine">coroutine</a> implementation in ES2015 </p>
-						<P>With <code>yield</code>'s pausing ability</P>, let's try controlling an async task with few lines of code(<a href="#" class="navigate-down">see below</a>)
+						<p>We've known few ways of handling async task:</p>
+						<ul>
+							<li>callback</li>
+							<li>event listening</li>
+							<li>publish/subscribe</li>
+							<li>promise(syntactic sugar of callback)</li>
+						</ul>
                     </section>
 					<section>
-						<pre><code class="javascript" data-trim>
-'use strict';
-
-var getSession = function() {
-    return Promise.resolve({userId: '1234'});
-};
-
-var getUserById = function(userId) {
-    return userId ? Promise.resolve({
-        userId: userId,
-        name: 'hello'
-    }) : Promise.reject(new Error('no such user'));
-};
-
-var getCurrentUser = function*() {
-    try {
-        var session = yield getSession();
-        var user = yield getUserById(session.userId);
-        console.log('user is ', user);
-    } catch (e) {
-        console.error('ERROR:', e);
-    }
-    return user;
-};
-
-var it = getCurrentUser();
-
-//start controlling the execution flow
-
-var sessionPromise = it.next().value;//the first yield push a promise out here
-sessionPromise
-.then(function(session) {
-    //once we get the result, we pass it back, and the second yield receive the
-    //correct session info instead of a promise
-    //and since the second yield push a promise as well, we just return it here
-    //to the next promise flow
-    return it.next(session).value;
-})
-.then(function(user) {
-    //finall we get user info, and pass it back to the generator
-    //to make it printable inside getCurrentUser generator function
-    it.next(user);
-})
-.catch(function(err) {
-    //trigger an error to be caught inside this generator
-    //while error occurs in this promise flow
-    it.throw(err);
-});
-						</code></pre>
+						<h2>What's new in ES2015</h2>
+						<p>Generator is sort of <a href="https://en.wikipedia.org/wiki/Coroutine">coroutine</a> implementation in ES2015</p>
+						<P>With <code>yield</code>'s pausing ability</P>, let's try controlling an async task with <code>generator</code> and <a href="https://github.com/tj/co" target="_blank">co</a>(<a href="#" class="navigate-down">see below</a>)
 					</section>
 					<section>
-						<h2>A bit complicated</h2>
-						<blockquote>
-							"I would rather not using generator if i have to manually control the execution flow"
-						</blockquote>
-						<blockquote>
-							"That's why we need <a href="https://github.com/tj/co" target="_blank">co</a>"
-						</blockquote>
-						<a href="#" class="navigate-down"><img width="130" data-src="img/arrow.png" alt="Down arrow"></a>
-					</section>
-					<section>
-						<h2>co</h2>
 						<pre><code class="javascript" data-trim>
 'use strict';
 
@@ -348,6 +277,36 @@ var getCurrentUser = function*() {
 };
 
 co(getCurrentUser);//execute the generator automatically
+						</code></pre>
+					</section>
+					<section>
+						<h2>How does co work?</h2>
+						<pre><code class="javascript" data-trim>
+'use strict';
+
+var it = getCurrentUser();
+
+//start controlling the execution flow
+
+var sessionPromise = it.next().value;//the first yield push a promise out here
+sessionPromise
+.then(function(session) {
+    //once we get the result, we pass it back, and the second yield receive the
+    //correct session info instead of a promise
+    //and since the second yield push a promise as well, we just return it here
+    //to the next promise flow
+    return it.next(session).value;
+})
+.then(function(user) {
+    //finall we get user info, and pass it back to the generator
+    //to make it printable inside getCurrentUser generator function
+    it.next(user);
+})
+.catch(function(err) {
+    //trigger an error to be caught inside this generator
+    //while error occurs in this promise flow
+    it.throw(err);
+});
 						</code></pre>
 					</section>
 				</section>

@@ -292,7 +292,9 @@ var fibonacci = function*() {
     }
 };
 
-for (var n of fibonacci()) {
+var n;
+
+for (n of fibonacci()) {
     console.log(n);
     // truncate the sequence at 1000
     if (n >= 1000) {

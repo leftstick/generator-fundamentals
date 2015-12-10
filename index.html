@@ -169,12 +169,12 @@ var hello = function* () {
 var gen = hello();
 
 //step 2. get the value "world" from paused point where yield placed
-console.log(gen.next().value);
+gen.next();
 
 //step 4. re-enter the generator with capitalized "World" passed in
-//as the result of (yield 'world') expression, and print the
-//final result
-console.log(gen.next('World').value);
+//as the result of (yield 'world') expression
+var finalResult = gen.next('World');
+console.log(finalResult);//should be "Hello World"
 						</code></pre>
 					</section>
 					<section>

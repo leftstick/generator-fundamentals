@@ -20,6 +20,8 @@
 		<!-- Code syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
+		<link rel="stylesheet" href="lib/css/tooltip.css">
+
 		<style media="screen">
 			.reveal code{
 				font-style: italic;
@@ -85,31 +87,6 @@ function* name([param[, param[, ... param]]]) {
 }
 						</code></pre>
 					</section>
-                    <section>
-                    	<h2>APIs of Generator Object</h2>
-						<table>
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Description</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>next()</td>
-								<td>Returns a value yielded by the <code>yield</code> expression.</td>
-							</tr>
-							<tr>
-								<td>return()</td>
-								<td>Returns the given value and finishes the generator.</td>
-							</tr>
-							<tr>
-								<td>throw()</td>
-								<td>Throws an error to a generator.</td>
-							</tr>
-						</tbody>
-					</table>
-                    </section>
 				</section>
 
 				<section>
@@ -175,35 +152,126 @@ occupy();
 						</ul>
 					</section>
 					<section>
-						<h2>Decomposition of generator</h2>
+						<h2>Decomposition</h2>
 						<pre><code class="javascript" data-trim>
 'use strict'
 
 var hello = function* () {
-    //The yield "world" expression will send the "world" string
+    //step 3. The yield "world" expression will send the "world" string
     //value out when pausing the generator function at that point
     var str = (yield 'world');
-    return 'Hello ' + str;
+
+    return 'Hello ' + str;//step 5. final value returned
 };
 
-//get generator object, which conforms to both the iterator
+//step 1. get generator object, which conforms to both the iterator
 //and the Iterable protocol
 var gen = hello();
 
-//get the value "world" from paused point where yield placed
+//step 2. get the value "world" from paused point where yield placed
 console.log(gen.next().value);
 
-//re-enter the generator with capitalized "World" passed in
+//step 4. re-enter the generator with capitalized "World" passed in
 //as the result of (yield 'world') expression, and print the
 //final result
 console.log(gen.next('World').value);
 						</code></pre>
 					</section>
+					<section>
+                    	<h2>APIs of Generator Object</h2>
+						<table>
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><a href="#/next">next()</a></td>
+									<td>Returns a value yielded by the <a href="#/yield">yield</a> expression.</td>
+								</tr>
+								<tr>
+									<td>
+										<span class="tooltip-container">
+											<div class="tooltip">
+											      <em></em>
+											      <span></span>
+											      doesn't support in node
+											</div>
+											return()<sup style="font-size: 20px;margin-left: 5px;">&#63;</sup>
+										</span>
+									</td>
+									<td>Returns the given value and finishes the generator.</td>
+								</tr>
+								<tr>
+									<td><a href="#/throw">throw()</a></td>
+									<td>Throws an error to a generator.</td>
+								</tr>
+							</tbody>
+					    </table>
+                    </section>
+					<section id="next">
+						<h2>next</h2>
+						<p style="text-align: left;"><strong>Syntax</strong></p>
+						<pre><code class="javascript" data-trim>
+gen.next(value)
+						</code></pre>
+						<p style="text-align: left;">Parameters</p>
+						<small style="padding: 0px 47px; display: block; text-align: left;">The value to send to the generator.</small>
+						<p style="text-align: left;">Example</p>
+						<pre><code class="javascript" data-trim>
+'use strict'
+var gen = function*() {
+    while (true) {
+        var value = yield null;
+        console.log(value);
+    }
+};
+var g = gen();
+g.next(1);//won't log anything in generator, since nothing yielding initially
+g.next(2);//generator will log "2"
+						</code></pre>
+					</section>
+					<section id="throw">
+						<h2>throw</h2>
+						<p style="text-align: left;"><strong>Syntax</strong></p>
+						<pre><code class="javascript" data-trim>
+gen.throw(exception)
+						</code></pre>
+						<p style="text-align: left;">exception</p>
+                        <small style="padding: 0px 47px; display: block; text-align: left;">The exception to throw. For debugging purposes, it is useful to make it an instanceof Error.</small>
+						<p style="text-align: left;">Example</p>
+						<pre><code class="javascript" data-trim>
+'use strict'
+var gen = function*() {
+    try {
+        yield 1;
+    } catch (e) {
+        console.log(e);//step 3. get error thrown in step 2
+    }
+};
+var g = gen();
+g.next(); //step 1. { value: 1, done: false }
+g.throw(new Error('What the fuck!')); //step 2.
+						</code></pre>
+					</section>
+					<section id="yield">
+						<h2>yield</h2>
+						<p style="text-align: left;"><strong>Syntax</strong></p>
+						<pre><code class="javascript" data-trim>
+[rv] = yield [expression];
+						</code></pre>
+						<p style="text-align: left;">expression</p>
+						<small style="padding: 0px 47px; display: block; text-align: left;">Defines the value to return from the generator function via the iterator protocol. If omitted, undefined is returned instead.</small>
+						<p style="text-align: left;">rv</p>
+						<small style="padding: 0px 47px; display: block; text-align: left;">Returns the optional value passed to the generator's next() method to resume its execution.</small>
+					</section>
 				</section>
 
 				<section>
 					<section>
-						<h2>What generator can do</h2>
+						<h2>What is generator for</h2>
 						<ul>
 							<li><a href="#/iterator">As iterator</a></li>
 							<li><a href="#/control-flow">Control flow</a></li>

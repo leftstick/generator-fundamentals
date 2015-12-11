@@ -21,20 +21,9 @@
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
 		<link rel="stylesheet" href="lib/css/tooltip.css">
+		<link rel="stylesheet" href="lib/css/modal.css">
 
-		<style media="screen">
-			.reveal code{
-				font-style: italic;
-				color: gray;
-			}
-			.reveal pre code{
-				font-style: normal;
-				color: #dcdcdc;
-			}
-			.reveal pre code{
-				max-height: 500px;
-			}
-		</style>
+		<link rel="stylesheet" href="css/style.css">
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -94,7 +83,7 @@ function* name([param[, param[, ... param]]]) {
 					<p>
 						Let's try with simple snippet:
 					</p>
-					<pre><code class="javascript" data-trim>
+					<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 
 var idMaker = function* (){
@@ -120,7 +109,7 @@ console.log(gen.next()); // value: undefined, done: true
 					<section>
 						<h3>Run To Completion</h3>
 						<blockquote style="font-size: 27px;">Once the function starts running, it will always run to completion before any other JS code can run</blockquote>
-						<pre><code class="javascript" data-trim>
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 
 setTimeout(function(){
@@ -129,13 +118,13 @@ setTimeout(function(){
 
 var occupy = function() {
     //You should never writing as following, since it's blocking the main thread
-    for (var i=0; i<=1000000; i++) {
+    for (var i=0; i<=100; i++) {
         console.log(i);
     }
 };
 
 occupy();
-// 0...1000000, take a long time than 1 second
+// 0...100, take a long time than 1 millisecond
 // 'Hello World' is printed right after occupy run to completion.
 //The setTimeout cannot interrupt occupy() function while it's running
 						</code></pre>
@@ -153,7 +142,7 @@ occupy();
 					</section>
 					<section>
 						<h2>Decomposition</h2>
-						<pre><code class="javascript" data-trim>
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 
 var hello = function* () {
@@ -169,7 +158,7 @@ var hello = function* () {
 var gen = hello();
 
 //step 2. get the value "world" from paused point where yield placed
-gen.next();
+console.log(gen.next());
 
 //step 4. re-enter the generator with capitalized "World" passed in
 //as the result of (yield 'world') expression
@@ -220,7 +209,7 @@ gen.next(value)
 						<p style="text-align: left;">Parameters</p>
 						<small style="padding: 0px 47px; display: block; text-align: left;">The value to send to the generator.</small>
 						<p style="text-align: left;">Example</p>
-						<pre><code class="javascript" data-trim>
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 var gen = function*() {
     while (true) {
@@ -229,8 +218,8 @@ var gen = function*() {
     }
 };
 var g = gen();
-g.next(1);//won't log anything in generator, since nothing yielding initially
-g.next(2);//generator will log "2"
+console.log(g.next(1));//won't log anything in generator, since nothing yielding initially
+console.log(g.next(2));//generator will log "2"
 						</code></pre>
 					</section>
 					<section id="throw">
@@ -242,13 +231,13 @@ gen.throw(exception)
 						<p style="text-align: left;">exception</p>
                         <small style="padding: 0px 47px; display: block; text-align: left;">The exception to throw. For debugging purposes, it is useful to make it an instanceof Error.</small>
 						<p style="text-align: left;">Example</p>
-						<pre><code class="javascript" data-trim>
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 var gen = function*() {
     try {
         yield 1;
     } catch (e) {
-        console.log(e);//step 3. get error thrown in step 2
+        console.log('ERROR: ', e);//step 3. get error thrown in step 2
     }
 };
 var g = gen();
@@ -279,7 +268,7 @@ g.throw(new Error('What the fuck!')); //step 2.
 					</section>
                     <section id="iterator">
                     	<h2>Iterator</h2>
-						<pre><code class="javascript" data-trim>
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim contenteditable>
 'use strict'
 
 var fibonacci = function*() {
@@ -350,8 +339,30 @@ co(getCurrentUser);//execute the generator automatically
 					</section>
 					<section>
 						<h2>How does co work?</h2>
-						<pre><code class="javascript" data-trim style="max-height: 570px;">
+						<pre><button class="md-trigger btn btn-run" data-modal="modal-1">Run Code</button><code class="javascript" data-trim style="max-height: 570px;" contenteditable>
 'use strict';
+
+var getSession = function() {
+    return Promise.resolve({userId: '1234'});
+};
+
+var getUserById = function(userId) {
+    return userId ? Promise.resolve({
+        userId: userId,
+        name: 'hello'
+    }) : Promise.reject(new Error('no such user'));
+};
+
+var getCurrentUser = function*() {
+    try {
+        var session = yield getSession();//step 2.
+        var user = yield getUserById(session.userId);//step 4.
+        console.log('user is ', user);
+    } catch (e) {
+        console.error('ERROR:', e);
+    }
+    return user;
+};
 
 var it = getCurrentUser();
 //step 1.the first yield push a promise out here
@@ -389,6 +400,19 @@ sessionPromise
 
 		</div>
 
+		<div class="md-modal md-effect-1" id="modal-1">
+			<div class="md-content">
+				<div>
+					<div class="message">
+
+					</div>
+					<button class="md-close btn">Close</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="md-overlay"></div>
+
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>
 
@@ -410,7 +434,9 @@ sessionPromise
 					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
 					{ src: 'plugin/zoom-js/zoom.js', async: true },
-					{ src: 'plugin/notes/notes.js', async: true }
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'lib/js/modal.js' },
+					{ src: 'lib/js/classie.js' }
 				]
 			});
 
